@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "eth.h"
+#include "usart.h"
 #include "usb_otg.h"
 #include "gpio.h"
 
@@ -46,11 +47,29 @@
 
 /* USER CODE BEGIN PV */
 
+uint8_t rx_data;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	if (rx_data == '1')
+	{
+		HAL_GPIO_WritePin(BLUE_LED_GPIO_Port, BLUE_LED_Pin, SET);
+	}
+	else if (rx_data == '0')
+	{
+		HAL_GPIO_WritePin(BLUE_LED_GPIO_Port, BLUE_LED_Pin, RESET);
+	}
+	else
+	{
+		/* Do nothing */
+	}
+}
 
 /* USER CODE END PFP */
 
@@ -89,7 +108,10 @@ int main(void)
   MX_GPIO_Init();
   MX_ETH_Init();
   MX_USB_OTG_FS_PCD_Init();
+  MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
+
+  HAL_UART_Receive_IT(&huart3, &rx_data, 1);
 
   /* USER CODE END 2 */
 
@@ -97,8 +119,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  HAL_GPIO_TogglePin(BLUE_LED_GPIO_Port, BLUE_LED_Pin);
-	  HAL_Delay(500);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
